@@ -559,7 +559,7 @@ img.slot{display:block;object-fit:cover;background:#dfe3e8;}
         <label class="opt"><input type="radio" name="interesse" value="Quero investir com consórcio">Quero investir com consórcio</label>
         <label class="opt"><input type="radio" name="interesse" value="Quero uma consultoria personalizada">Quero uma consultoria personalizada</label>
       </div>
-      <label class="lgpd"><input type="checkbox" name="consentimento" value="sim" required>Autorizo a AMV Patrimônio a entrar em contato comigo por telefone, WhatsApp e e-mail sobre este atendimento, conforme a <a href="politica-de-privacidade.html" target="_blank">Política de Privacidade</a>.</label>
+      <label class="lgpd"><input type="checkbox" name="consentimento" value="sim" required><span>Autorizo a AMV Patrimônio a entrar em contato comigo por telefone, WhatsApp e e-mail sobre este atendimento, conforme a <a href="politica-de-privacidade.html" target="_blank">Política de Privacidade</a>.</span></label>
       <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="err" id="derr"></div>
       <button type="submit" id="dsend">Quero meu diagnóstico</button>
@@ -658,6 +658,8 @@ dform.addEventListener('submit', async e => {
     if (FORM_ENDPOINT) await fetch(FORM_ENDPOINT, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(data) });
     else window.open(`https://wa.me/${WPP}?text=${encodeURIComponent(texto)}`, '_blank');
     dform.style.display = 'none'; document.getElementById('ddone').style.display = 'block';
+    if (window.gtag) gtag('event', 'generate_lead', { form: 'diagnostico', interesse: data.interesse, renda: data.renda });
+    if (window.fbq) fbq('track', 'Lead');
   } catch (err) {
     derr.textContent = 'Não foi possível enviar agora. Tente pelo WhatsApp.'; derr.style.display = 'block';
   } finally { dsend.disabled = false; dsend.textContent = 'Quero meu diagnóstico'; }
@@ -683,13 +685,6 @@ ckBox.querySelectorAll('[data-ck]').forEach(b => b.addEventListener('click', () 
   try { localStorage.setItem('amv_cookies', b.dataset.ck); } catch (e) {}
   ckBox.classList.remove('show'); if (b.dataset.ck === '1') carregarMedicao();
 }));
-// evento de conversão quando o formulário é enviado
-document.getElementById('dform').addEventListener('submit', () => setTimeout(() => {
-  if (document.getElementById('ddone').style.display !== 'block') return;
-  if (window.gtag) gtag('event', 'generate_lead', { form: 'diagnostico' });
-  if (window.fbq) fbq('track', 'Lead');
-}, 1500));
-
 // animação de entrada
 const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), {threshold:.12});
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
